@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "skycli"
+version = "0.1.0"
+authors = [
+    {name = "Chester Agent", email = "chester@example.com"},
+]
+description = "An elegant command-line tool for posting to Bluesky"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "atproto",
+    "tomli",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["skycli"]
+
+[project.scripts]
+sky = "skycli.post:main"
