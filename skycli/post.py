@@ -2,7 +2,10 @@
 from atproto import Client, client_utils
 import sys
 import tomli
+import argparse
 from pathlib import Path
+
+__version__ = "0.1.0"
 
 # Load config from TOML file
 config_dir = Path.home() / ".config" / "skycli"
@@ -63,7 +66,31 @@ def create_post(text):
         return 1
 
 def main():
-    text = sys.stdin.read().strip()
+    parser = argparse.ArgumentParser(
+        description="Post to Bluesky from the command line",
+        epilog="Examples:\n"
+               "  sky 'Hello world!'               # Post directly\n"
+               "  echo 'Hello' | sky               # Post from stdin\n"
+               "  date | sky                       # Post command output",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument('text', nargs='?', help='Text to post (optional if using stdin)')
+    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
+    args = parser.parse_args()
+
+    # Get text from argument or stdin
+    if args.text:
+        text = args.text
+    elif not sys.stdin.isatty():  # Check if there's data in stdin
+        text = sys.stdin.read().strip()
+    else:
+        parser.print_help()
+        sys.exit(1)
+    
+    if not text:
+        print("Error: No text provided", file=sys.stderr)
+        sys.exit(1)
+
     return_code = create_post(text)
     sys.exit(return_code)
 
